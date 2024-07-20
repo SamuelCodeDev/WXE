@@ -76,4 +76,10 @@ namespace WXE::Inputs
 	}
 }
 
+#ifdef _WIN32
+
+#elif __linux__
+
+#endif
+
 #endif

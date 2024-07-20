@@ -13,8 +13,6 @@ namespace WXE
 	protected:
 		int32  windowWidth;
 		int32  windowHeight;
-		int32  windowStyle;
-		int32  windowMode;
 		float  windowCenterX;
 		float  windowCenterY;
 		float  windowPosX;
@@ -27,7 +25,6 @@ namespace WXE
 
 		void Title(const string_view title) noexcept;
 
-		int32 Mode() const noexcept;
 		float CenterX() const noexcept;
 		float CenterY() const noexcept;
 		string Title() const noexcept;
@@ -42,9 +39,6 @@ namespace WXE
 	inline void WindowDesc::Title(const string_view title) noexcept
 	{ windowTitle = title; }
 
-	inline int32 WindowDesc::Mode() const noexcept
-	{ return windowMode; }
-
 	inline float WindowDesc::CenterX() const noexcept
 	{ return windowCenterX; }
 
@@ -56,9 +50,9 @@ namespace WXE
 }
 
 #ifdef _WIN32
-	#include <Windows.h>
-	#include <Windowsx.h>
-#endif
+
+#include <Windows.h>
+#include <Windowsx.h>
 
 namespace WXE::Windows
 {
@@ -70,6 +64,8 @@ namespace WXE::Windows
 		HICON     windowIcon;
 		HCURSOR   windowCursor;
 		COLORREF  windowColor;
+		int32  windowStyle;
+		int32  windowMode;
 
 		static void (*inFocus)();
 		static void (*lostFocus)();
@@ -84,6 +80,7 @@ namespace WXE::Windows
 		void Size(const int32 width, const int32 height) noexcept;
 		void Close() const noexcept;
 
+		int32 Mode() const noexcept;
 		void Mode(const int32 mode) noexcept;
 
 		COLORREF Color() const noexcept;
@@ -110,6 +107,9 @@ namespace WXE::Windows
 	inline void Window::Cursor(const uint32 cursor) noexcept
 	{ windowCursor = LoadCursor(GetModuleHandle(nullptr), MAKEINTRESOURCE(cursor)); }
 
+	inline int32 Window::Mode() const noexcept
+	{ return windowMode; }
+
 	inline void Window::Close() const noexcept
 	{ PostMessage(windowHandle, WM_DESTROY, 0, 0); }
 
@@ -128,5 +128,31 @@ namespace WXE::Windows
 	inline void Window::LostFocus(void(*func)()) noexcept
 	{ lostFocus = func; }
 }
+
+#elif __linux__
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
+namespace WXE::Linux
+{
+	class Window final : public WindowDesc
+	{
+	private:
+		int32 screenNum;
+		Display* display;
+		::Window rootWindow;
+		::Window window;
+		XEvent event;
+		GC gc;
+	public:
+		Window() noexcept;
+		~Window();
+		bool Create();
+		void Size(const uint32 width, const uint32 height) noexcept;
+	};
+}
+
+#endif
 
 #endif

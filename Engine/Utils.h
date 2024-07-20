@@ -21,4 +21,8 @@ template<typename T>
 inline void SafeRelease(T * pointer)
 { if (pointer) pointer->Release(); }
 
+template<typename T> 
+inline void SafeDelete(T *& pointer) 
+{ delete pointer; pointer = nullptr; }
+
 #endif

@@ -6,23 +6,23 @@
 
 namespace WXE
 {
-	struct Mesh
-	{
-        string id;
+        struct Mesh
+        {
+                string id;
 
-        ID3DBlob* vertexBufferCPU;
+                ID3DBlob* vertexBufferCPU;
 
-        ID3D12Resource* vertexBufferUpload;
-        ID3D12Resource* vertexBufferGPU;
-        D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+                ID3D12Resource* vertexBufferUpload;
+                ID3D12Resource* vertexBufferGPU;
+                D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 
-        uint32 vertexByteStride;
-        uint32 vertexBufferSize;
+                uint32 vertexByteStride;
+                uint32 vertexBufferSize;
 
-        Mesh(const string name) noexcept;
-        ~Mesh() noexcept;
+                Mesh(const string name) noexcept;
+                ~Mesh() noexcept;
 
-        D3D12_VERTEX_BUFFER_VIEW* VertexBufferView() noexcept;
+                D3D12_VERTEX_BUFFER_VIEW* VertexBufferView() noexcept;
 	};
 }
 
