@@ -1,11 +1,13 @@
 #include "Window.h"
 
 #ifdef _WIN32
+
 void GetSizeScreen(WXE::uint32 width, WXE::uint32 height) {
     width = GetSystemMetrics(SM_CXSCREEN);
     height = GetSystemMetrics(SM_CYSCREEN);
 }
 #elif __linux
+
 void GetSizeScreen(WXE::uint32 width, WXE::uint32 height) {
     Display * display = XOpenDisplay(nullptr);
     Screen * scrn = DefaultScreenOfDisplay(display);
