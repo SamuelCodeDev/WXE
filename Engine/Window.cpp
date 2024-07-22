@@ -133,6 +133,7 @@ namespace WXE::Windows
 
 #include <cstdlib>
 #include "Utils.h"
+#pragma comment(lib, "X11.lib")
 
 namespace WXE::Linux
 {

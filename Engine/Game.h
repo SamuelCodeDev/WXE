@@ -9,6 +9,10 @@
     using Window = WXE::Windows::Window;
     using Input = WXE::Inputs::Input;
     using Graphics = WXE::DX12::Graphics;
+#elif __linux__
+    using Window = WXE::Linux::Window;
+    using Input = WXE::Inputs::Input;
+    //using Graphics = WXE::DX12::Graphics;
 #endif
 
 namespace WXE
