@@ -2,7 +2,6 @@
 #define WINDOW_H
 
 #include "Types.h"
-#include "Defines.h"
 
 namespace WXE
 {
@@ -51,6 +50,7 @@ namespace WXE
 
 #ifdef _WIN32
 
+#include "Defines.h"
 #include <Windows.h>
 #include <Windowsx.h>
 
@@ -133,24 +133,30 @@ namespace WXE::Windows
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/Xresource.h>
 
 namespace WXE::Linux
 {
 	class Window final : public WindowDesc
-	{
-	private:
-		int32 screenNum;
-		Display* display;
-		::Window rootWindow;
-		::Window window;
-		XEvent event;
-		GC gc;
-	public:
-		Window() noexcept;
-		~Window();
-		bool Create();
-		void Size(const uint32 width, const uint32 height) noexcept;
-	};
+    {
+    private:
+        int32 screenNum;
+        Display* display;
+        Screen* screen;
+        ::Window window;
+
+        void GetSizeScreen(uint32 width, uint32 height);
+
+    public:
+        Window() noexcept;
+        ~Window() noexcept;
+        bool Create();
+        void Size(const uint32 width, const uint32 height) noexcept;
+        ::Display* XDisplay() const noexcept;
+    };
+
+    inline ::Display* Window::XDisplay() const noexcept
+    { return display; }
 }
 
 #endif

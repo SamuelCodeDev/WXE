@@ -6,21 +6,6 @@ void GetSizeScreen(WXE::uint32 width, WXE::uint32 height) {
     width = GetSystemMetrics(SM_CXSCREEN);
     height = GetSystemMetrics(SM_CYSCREEN);
 }
-#elif __linux
-
-void GetSizeScreen(WXE::uint32 width, WXE::uint32 height) {
-    Display * display = XOpenDisplay(nullptr);
-    Screen * scrn = DefaultScreenOfDisplay(display);
-    
-	height = scrn->height;
-    width  = scrn->width;
-    
-	delete scrn;
-    XCloseDisplay(display);
-}
-#endif
-
-#ifdef _WIN32
 
 namespace WXE::Windows
 {
@@ -151,73 +136,71 @@ namespace WXE::Windows
 
 namespace WXE::Linux
 {
-	Window::Window() noexcept : screenNum{}
-	{
-		windowPosX = 0;
-		windowPosY = 0;
-		display = XOpenDisplay(nullptr);
-		GetSizeScreen(windowWidth, windowHeight);
-	}
+	Window::Window() noexcept :
+    screenNum{}
+    {
+        windowPosX = 0;
+        windowPosY = 0;
+        windowTitle = string("Game Window");
+        display = XOpenDisplay(nullptr);
+        screen = DefaultScreenOfDisplay(display);
+    
+	    windowHeight = screen->height;
+        windowWidth  = screen->width;
+    }
 
-	Window::~Window()
-	{
-		XFlush(display);
-		XCloseDisplay(display);
-	}
+    Window::~Window() noexcept
+    {
+        XFlush(display);
+        SafeDelete(screen);
+        XCloseDisplay(display);
+    }
 
-	bool Window::Create()
-	{
-		display = XOpenDisplay(getenv("DISPLAY"));
-		if (display == nullptr)
+    bool Window::Create()
+    {
+        display = XOpenDisplay(getenv("DISPLAY"));
+        if(display == nullptr);
 			return false;
 
-		screenNum = DefaultScreen(display);
+        screenNum = DefaultScreen(display);
 
-		window = XCreateSimpleWindow(
-			display, 
-			RootWindow(display, screenNum),
-			windowPosX, windowPosY, 
-			windowWidth, windowHeight,
-			2,
-			BlackPixel(display, screenNum),
-			WhitePixel(display, screenNum)
-		);
+        window = XCreateSimpleWindow(
+            display, 
+            DefaultRootWindow(display),
+            windowPosX, windowPosY, 
+            windowWidth, windowHeight,
+            2,
+            BlackPixel(display, screenNum),
+            WhitePixel(display, screenNum)
+        );
 
-		XMapWindow(display, window);
-		XFlush(display);
+        XStoreName(display, window, windowTitle.c_str());
+        XSelectInput(display, window, ButtonPressMask|StructureNotifyMask );
+        XMapWindow(display, window);
 
-		screenNum = DefaultScreen(display);
+		return true;
+    }
 
-		{
-			XGCValues values;
-			gc = XCreateGC(display, window, 0, &values);
-			if (gc < 0)
-				return false;
-		}
-
-		XSetForeground(display, gc, BlackPixel(display, screenNum));
-		XSetBackground(display, gc, WhitePixel(display, screenNum));
-		XSetLineAttributes(display, gc, 2, LineSolid, CapButt, JoinBevel);
-		XSetFillStyle(display, gc, FillSolid);
-		XFlush(display);
-	}
+    void Window::GetSizeScreen(uint32 width, uint32 height)
+    {
+        screen = DefaultScreenOfDisplay(display);
+    
+	    windowHeight = screen->height;
+        windowWidth  = screen->width;
+    }
 
     void Window::Size(const uint32 width, const uint32 height) noexcept
     {
-		windowWidth = width;
-		windowHeight = height;
+        windowWidth = width;
+        windowHeight = height;
 
-		windowCenterX = windowWidth / 2.0f;
-		windowCenterY = windowHeight / 2.0f;
+        windowCenterX = windowWidth / 2.0f;
+        windowCenterY = windowHeight / 2.0f;
 
-		{
-			uint32 widthScreen, heightScreen;
-			GetSizeScreen(widthScreen, heightScreen); 
-			windowPosX = widthScreen / 2.0f - windowWidth / 2.0f;
-			windowPosY = heightScreen / 2.0f - windowHeight / 2.0f;
-		}
-		//XResizeWindow(display, window, width, height);
-      	//XFlush(display);
+        uint32 widthScreen, heightScreen;
+        GetSizeScreen(widthScreen, heightScreen); 
+        windowPosX = widthScreen / 2.0f - windowWidth / 2.0f;
+        windowPosY = heightScreen / 2.0f - windowHeight / 2.0f;
     }
 }
 
